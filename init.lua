@@ -77,10 +77,9 @@ vim.lsp.enable("clangd")
 vim.diagnostic.config({ underline = true, virtual_text = true, signs = false })
 vim.opt.signcolumn = "no"
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = true })
-vim.keymap.set("n", "<F8>", function()
-  vim.diagnostic.setqflist({ open = true })
-end, { desc = "Populate quickfix with all diagnostics and open" })
+vim.keymap.set("n", "<F8>", function() vim.diagnostic.setqflist({ open = true }) end, { desc = "Populate quickfix with all diagnostics and open" })
 vim.keymap.set("n", "<F12>", vim.lsp.buf.definition, { desc = "Goto definition", buffer = true })
+vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, { desc = "Rename", buffer = true })
 
 -- Setup Tree Sitter
 vim.api.nvim_create_autocmd("FileType", {
