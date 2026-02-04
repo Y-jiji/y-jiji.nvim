@@ -80,6 +80,7 @@ vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = true })
 vim.keymap.set("n", "<F8>", function()
   vim.diagnostic.setqflist({ open = true })
 end, { desc = "Populate quickfix with all diagnostics and open" })
+vim.keymap.set("n", "<F12>", vim.lsp.buf.definition, { desc = "Goto definition", buffer = true })
 
 -- Setup Tree Sitter
 vim.api.nvim_create_autocmd("FileType", {
