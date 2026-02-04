@@ -1,6 +1,5 @@
 vim.cmd("colorscheme brutal")
 
-
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -37,7 +36,7 @@ require("lazy").setup({
         "nvim-treesitter/nvim-treesitter",
         lazy = false,
 	opts = { ensure_installed = "all", highlight = { enable = true }, sync_install = false },
-        build = ':TSUpdate'
+        build = ":TSUpdate"
      },
      {
         "sphamba/smear-cursor.nvim",
@@ -52,23 +51,32 @@ require("lazy").setup({
 })
 
 -- Setup LSP Capabilities
-local lspcap = require('cmp_nvim_lsp').default_capabilities()
-vim.lsp.config.rust_analyzer = {
+local lspcap = require("cmp_nvim_lsp").default_capabilities()
+vim.lsp.config("rust_analyzer", {
   cmd = { "rust-analyzer" },
   root_markers = { "Cargo.toml" },
   filetypes = { "rust" },
   capabilities = caps
-}
+})
 vim.lsp.enable("rust_analyzer")
-vim.lsp.config.clangd = {
-   cmd = { "clangd" },
-   root_markers = { "compile_commands.json" },
-   filetypes = { "cpp", "c" }
-}
+vim.lsp.config("texlab", {
+  cmd = { "texlab" },
+  filetypes = { "tex", "plaintex", "bibtex" },
+  root_markers = { "latexmkrc" },
+  settings = { texlab = { build = { onSave = true } } }, 
+  capabilities = caps,
+})
+vim.lsp.enable("texlab")
+vim.lsp.config("clangd", {
+  cmd = { "clangd" },
+  filetypes = { "c", "cpp" },
+  root_markers = { "compile_commands.json" },
+  capabilities = caps,
+})
 vim.lsp.enable("clangd")
 vim.diagnostic.config({ underline = true, virtual_text = true, signs = false })
 vim.opt.signcolumn = "no"
-vim.keymap.set('n', 'K', vim.lsp.buf.hover, { buffer = true })
+vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = true })
 vim.keymap.set("n", "<F8>", function()
   vim.diagnostic.setqflist({ open = true })
 end, { desc = "Populate quickfix with all diagnostics and open" })
@@ -85,3 +93,8 @@ vim.g.rainbow_delimiters = {
   highlight = { "RainbowRed", "RainbowBlue" }
 }
 
+-- Setup Cursor Navigation
+vim.keymap.set("n", "<down>", "gj") 
+vim.keymap.set("n", "<up>", "gk") 
+vim.keymap.set("i", "<Down>", "<C-o>gj", { noremap = true, silent = true })
+vim.keymap.set("i", "<Up>", "<C-o>gk", { noremap = true, silent = true })
