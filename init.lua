@@ -60,6 +60,12 @@ vim.lsp.config.rust_analyzer = {
   capabilities = caps
 }
 vim.lsp.enable("rust_analyzer")
+vim.lsp.config.clangd = {
+   cmd = { "clangd" },
+   root_markers = { "compile_commands.json" },
+   filetypes = { "cpp", "c" }
+}
+vim.lsp.enable("clangd")
 vim.diagnostic.config({ underline = true, virtual_text = true, signs = false })
 vim.opt.signcolumn = "no"
 vim.keymap.set('n', 'K', vim.lsp.buf.hover, { buffer = true })
