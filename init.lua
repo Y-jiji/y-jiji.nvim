@@ -21,11 +21,11 @@ vim.g.maplocalleader = "\\"
 
 -- Setup lazy.nvim
 require("lazy").setup({
-  spec = { 
+  spec = {
      {
-       "hrsh7th/nvim-cmp", 
-       dependencies = { "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-buffer", "L3MON4D3/LuaSnip" }, 
-       opts = { sources = { { name = "nvim_lsp" }, { name = "buffer" } } }  
+       "hrsh7th/nvim-cmp",
+       dependencies = { "hrsh7th/cmp-nvim-lsp", "hrsh7th/cmp-buffer", "L3MON4D3/LuaSnip" },
+       opts = { sources = { { name = "nvim_lsp" }, { name = "buffer" } } }
      },
      {
         "HiPhish/rainbow-delimiters.nvim",
@@ -41,7 +41,23 @@ require("lazy").setup({
      {
         "sphamba/smear-cursor.nvim",
 	opts = { smear_between_buffers = true, smear_between_neighbor_lines = false, smear_insert_mode = true }
-     }
+     },
+     {
+        "nvim-telescope/telescope.nvim",
+        dependencies = { "nvim-lua/plenary.nvim" },
+        keys = {
+           { "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find files" },
+           { "<leader>fg", "<cmd>Telescope live_grep<cr>",  desc = "Live grep" },
+           { "<leader>fb", "<cmd>Telescope buffers<cr>",    desc = "Buffers" },
+           { "<leader>fh", "<cmd>Telescope help_tags<cr>",  desc = "Help tags" },
+        },
+     },
+     {
+        "chomosuke/typst-preview.nvim",
+        ft = "typst",
+        build = function() require("typst-preview").update() end,
+        opts = {},
+     },
   },
   -- Configure any other settings here. See the documentation for more details.
   -- colorscheme that will be used when installing plugins.
@@ -56,24 +72,31 @@ vim.lsp.config("rust_analyzer", {
   cmd = { "rust-analyzer" },
   root_markers = { "Cargo.toml" },
   filetypes = { "rust" },
-  capabilities = caps
+  capabilities = lspcap,
 })
 vim.lsp.enable("rust_analyzer")
 vim.lsp.config("texlab", {
   cmd = { "texlab" },
   filetypes = { "tex", "plaintex", "bibtex" },
   root_markers = { "latexmkrc" },
-  settings = { texlab = { build = { onSave = true } } }, 
-  capabilities = caps,
+  settings = { texlab = { build = { onSave = true } } },
+  capabilities = lspcap,
 })
 vim.lsp.enable("texlab")
 vim.lsp.config("clangd", {
   cmd = { "clangd" },
   filetypes = { "c", "cpp" },
   root_markers = { "compile_commands.json" },
-  capabilities = caps,
+  capabilities = lspcap,
 })
 vim.lsp.enable("clangd")
+vim.lsp.config("tinymist", {
+  cmd = { "tinymist" },
+  filetypes = { "typst" },
+  root_markers = { "typst.toml", ".git" },
+  capabilities = lspcap,
+})
+vim.lsp.enable("tinymist")
 vim.diagnostic.config({ underline = true, virtual_text = true, signs = false })
 vim.opt.signcolumn = "no"
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = true })
@@ -94,7 +117,10 @@ vim.g.rainbow_delimiters = {
 }
 
 -- Setup Cursor Navigation
-vim.keymap.set("n", "<down>", "gj") 
-vim.keymap.set("n", "<up>", "gk") 
+vim.keymap.set("n", "<down>", "gj")
+vim.keymap.set("n", "<up>", "gk")
 vim.keymap.set("i", "<Down>", "<C-o>gj", { noremap = true, silent = true })
 vim.keymap.set("i", "<Up>", "<C-o>gk", { noremap = true, silent = true })
+
+-- Project-local config files (.nvimrc / .exrc)
+vim.opt.exrc = true
