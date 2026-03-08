@@ -122,5 +122,16 @@ vim.keymap.set("n", "<up>", "gk")
 vim.keymap.set("i", "<Down>", "<C-o>gj", { noremap = true, silent = true })
 vim.keymap.set("i", "<Up>", "<C-o>gk", { noremap = true, silent = true })
 
+-- Persistent undo, swap, and backup in centralized dirs
+-- The // suffix encodes full file paths to ensure uniqueness
+local statedir = vim.fn.stdpath("state")
+for _, sub in ipairs({ "undo", "swap", "backup" }) do
+  vim.fn.mkdir(statedir .. "/" .. sub, "p")
+end
+vim.opt.undofile = true
+vim.opt.undodir = statedir .. "/undo//"
+vim.opt.directory = statedir .. "/swap//"
+vim.opt.backupdir = statedir .. "/backup//"
+
 -- Project-local config files (.nvimrc / .exrc)
 vim.opt.exrc = true
