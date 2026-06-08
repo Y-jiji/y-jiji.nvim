@@ -5,81 +5,68 @@ local hl = vim.api.nvim_set_hl
 local dark = vim.o.background == "dark"
 
 local c = {
-  bg      = dark and "#000000" or "#FFFFFF",
-  fg      = dark and "#FFFFFF" or "#000000",
-  comment = dark and "#AAAAAA" or "#999999",
-  red     = "#FF0000",
-  const   = "#00DD00",
-  sel     = dark and "#4A6066" or "#8080FF",
-  blue    = dark and "#99CCFF" or "#0000FF",
-  dim     = dark and "#222222" or "#DDDDDD",
+    bg        = dark and "#000000" or "#FFFFFF",
+    fg        = dark and "#FFFFFF" or "#000000",
+    faint     = dark and "#AAAAAA" or "#999999",
+    red       = "#FF0000",
+    blue      = dark and "#99CCFF" or "#0000FF",
+    green     = "#00DD00",
+    orange    = "#FFAA00",
+    selection = dark and "#4A6066" or "#9090FF",
+    dim       = dark and "#111111" or "#EEEEEE",
 }
 
-hl(0, "Normal", { fg = c.fg, bg = c.bg })
-hl(0, "Comment", { fg = c.comment, italic = true })
-hl(0, "Constant", { fg = c.const })
-hl(0, "String", { fg = c.const })
-hl(0, "Character", { fg = c.const })
-hl(0, "Number", { fg = c.const })
-hl(0, "Boolean", { fg = c.const })
-hl(0, "Float", { fg = c.const })
-hl(0, "Identifier", { fg = c.blue })
-hl(0, "Function", { fg = c.blue })
-hl(0, "Statement", { fg = c.red })
-hl(0, "Conditional", { fg = c.red })
-hl(0, "Repeat", { fg = c.red })
-hl(0, "Label", { fg = c.red })
-hl(0, "Operator", { fg = c.red })
-hl(0, "Keyword", { fg = c.red })
-hl(0, "Exception", { fg = c.red })
-hl(0, "PreProc", { fg = c.red })
-hl(0, "Include", { fg = c.red })
-hl(0, "Define", { fg = c.red })
-hl(0, "Macro", { fg = c.blue })
-hl(0, "Type", { fg = c.fg })
-hl(0, "StorageClass", { fg = c.red })
-hl(0, "Structure", { fg = c.red })
-hl(0, "Typedef", { fg = c.fg })
-hl(0, "Special", { fg = c.red })
-hl(0, "Delimiter", { fg = c.red })
-hl(0, "SpecialComment", { fg = c.comment, italic = true })
-hl(0, "Error", { fg = "#DD0000", underline = true })
-hl(0, "Todo", { fg = c.bg, bg = c.const, bold = true })
-hl(0, "LineNr", { fg = dark and c.blue or "#777777" })
+hl(0, "Normal", { fg = c.fg })
+hl(0, "LineNr", { fg = c.blue })
 hl(0, "CursorLineNr", { fg = c.blue })
-hl(0, "CursorLine", { bg = c.dim })
-hl(0, "Visual", { bg = c.sel })
+hl(0, "CursorLine", { bg = c.selection })
+hl(0, "Visual", { bg = c.selection })
 hl(0, "Pmenu", { fg = c.fg, bg = c.dim })
-hl(0, "PmenuSel", { fg = c.bg, bg = c.blue })
+hl(0, "PmenuSel", { fg = c.dim, bg = c.fg })
+hl(0, "PmenuBorder", { bg = c.dim })
 hl(0, "StatusLine", { fg = c.fg, bg = c.bg })
 hl(0, "TabLine", { fg = c.fg, bg = c.bg })
 hl(0, "TabLineSel", { fg = c.fg, bg = c.bg, underline = true })
 hl(0, "Search", { fg = c.bg, bg = c.blue })
 hl(0, "MatchParen", { fg = c.red, bold = true })
-hl(0, "DiagnosticError", { fg = "#FF0000" })
-hl(0, "DiagnosticWarn", { fg = "#FFAA00" })
+hl(0, "DiagnosticHint", { fg = c.green })
+hl(0, "DiagnosticError", { bg = c.red, fg = c.bg })
+hl(0, "DiagnosticError", { fg = c.red })
+hl(0, "DiagnosticWarn", { fg = c.orange })
 hl(0, "DiagnosticInfo", { fg = c.blue })
-hl(0, "DiagnosticHint", { fg = c.const })
-hl(0, "DiffAdd", { fg = c.const })
+hl(0, "DiffAdd", { fg = c.green })
 hl(0, "DiffChange", { fg = c.blue })
 hl(0, "DiffDelete", { fg = c.red })
-hl(0, "@variable", { fg = c.blue })
-hl(0, "@function", { fg = c.blue })
-hl(0, "@keyword", { fg = c.red })
-hl(0, "@string", { fg = c.const })
-hl(0, "@number", { fg = c.const })
-hl(0, "@constant", { fg = c.const })
+
 hl(0, "@type", { fg = c.fg })
-hl(0, "@comment", { fg = c.comment, italic = true })
-hl(0, "@punctuation", { fg = c.red })
-hl(0, "@tag", { fg = c.blue })
-hl(0, "@tag.attribute", { fg = c.red, italic = true })
-hl(0, "@tag.delimiter", { fg = c.red })
+hl(0, "@type.builtin.rust", { fg = c.fg })
+
+hl(0, "@constructor", { fg = c.blue })
+hl(0, "@property", { fg = c.blue })
+hl(0, "@attribute", { fg = c.blue })
+hl(0, "@attribute.rust", { fg = c.red })
+hl(0, "@attribute.builtin.rust", { fg = c.red })
+hl(0, "@variable", { fg = c.blue })
+hl(0, "@variable.builtin", { fg = c.red })
+hl(0, "@constant", { fg = c.blue })
+hl(0, "@constant.builtin", { fg = c.blue })
+hl(0, "@function", { fg = c.blue })
 hl(0, "@module", { fg = c.blue })
 hl(0, "@namespace", { fg = c.blue })
-hl(0, "@lsp.type.macro.rust", { fg = c.blue })
-hl(0, "@lsp.type.enumMember.rust", { fg = c.blue })
-hl(0, "@type.builtin.rust", { fg = c.fg })
-hl(0, "DiagnosticError", { bg = c.red, fg = c.bg })
-hl(0, "RainbowRed", { fg = "#FF4444" })
-hl(0, "RainbowBlue", { fg = c.blue })
+hl(0, "@tag", { fg = c.blue })
+hl(0, "@tag.attribute", { fg = c.blue, italic = true })
+
+hl(0, "@keyword", { fg = c.red })
+hl(0, "@punctuation", { fg = c.red })
+hl(0, "@punctuation.special", { fg = c.red })
+hl(0, "@character.spectial.rust", { fg = c.red })
+hl(0, "@operator", { fg = c.red })
+hl(0, "@label", { fg = c.red })
+hl(0, "@tag.delimiter", { fg = c.red })
+hl(0, "@comment", { fg = c.faint, italic = true })
+hl(0, "@comment.todo", { fg = c.bg, bg = c.green, bold = true })
+
+hl(0, "@string", { fg = c.green })
+hl(0, "@number", { fg = c.green })
+hl(0, "@character", { fg = c.green })
+hl(0, "@boolean", { fg = c.green })
