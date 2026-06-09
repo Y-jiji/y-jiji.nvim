@@ -32,6 +32,12 @@ require("lazy").setup({
 			lazy = false,
 			build = ":TSUpdate",
 		},
+        {
+            "Y-jiji/tinymist-kitty",
+            ft = "typst",
+            opt = { dpi = 384 },
+            build = "cargo install --path crates/typst-term-preview --locked"
+        },
 		{
 			"sphamba/smear-cursor.nvim",
 			opts = {
@@ -48,12 +54,6 @@ require("lazy").setup({
 				{ "<leader>fb", "<cmd>Telescope buffers<cr>",   desc = "Buffers" },
 				{ "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
 			},
-		},
-		{
-			"chomosuke/typst-preview.nvim",
-			ft = "typst",
-			build = function() require("typst-preview").update() end,
-			opts = {},
 		},
 		{
 			"Julian/lean.nvim",

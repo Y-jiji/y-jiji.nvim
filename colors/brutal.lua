@@ -16,6 +16,7 @@ local c = {
     dim       = dark and "#111111" or "#EEEEEE",
 }
 
+-- Surrounding Components
 hl(0, "Normal", { fg = c.fg })
 hl(0, "LineNr", { fg = c.blue })
 hl(0, "CursorLineNr", { fg = c.blue })
@@ -24,7 +25,7 @@ hl(0, "Visual", { bg = c.selection })
 hl(0, "Pmenu", { fg = c.fg, bg = c.dim })
 hl(0, "PmenuSel", { fg = c.dim, bg = c.fg })
 hl(0, "PmenuBorder", { bg = c.dim })
-hl(0, "StatusLine", { fg = c.fg, bg = c.bg })
+hl(0, "StatusLine", { fg = c.fg })
 hl(0, "TabLine", { fg = c.fg, bg = c.bg })
 hl(0, "TabLineSel", { fg = c.fg, bg = c.bg, underline = true })
 hl(0, "Search", { fg = c.bg, bg = c.blue })
@@ -38,9 +39,11 @@ hl(0, "DiffAdd", { fg = c.green })
 hl(0, "DiffChange", { fg = c.blue })
 hl(0, "DiffDelete", { fg = c.red })
 
+-- Code: Type
 hl(0, "@type", { fg = c.fg })
 hl(0, "@type.builtin.rust", { fg = c.fg })
 
+-- Code: Term
 hl(0, "@constructor", { fg = c.blue })
 hl(0, "@property", { fg = c.blue })
 hl(0, "@attribute", { fg = c.blue })
@@ -56,6 +59,7 @@ hl(0, "@namespace", { fg = c.blue })
 hl(0, "@tag", { fg = c.blue })
 hl(0, "@tag.attribute", { fg = c.blue, italic = true })
 
+-- Code: Keyword
 hl(0, "@keyword", { fg = c.red })
 hl(0, "@punctuation", { fg = c.red })
 hl(0, "@punctuation.special", { fg = c.red })
@@ -66,7 +70,11 @@ hl(0, "@tag.delimiter", { fg = c.red })
 hl(0, "@comment", { fg = c.faint, italic = true })
 hl(0, "@comment.todo", { fg = c.bg, bg = c.green, bold = true })
 
+-- Code: Literal
 hl(0, "@string", { fg = c.green })
 hl(0, "@number", { fg = c.green })
 hl(0, "@character", { fg = c.green })
 hl(0, "@boolean", { fg = c.green })
+
+-- Code: Markup
+hl(0, "@markup.raw.markdown_inline",  { fg = c.red })
