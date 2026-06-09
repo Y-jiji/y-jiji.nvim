@@ -105,8 +105,40 @@ local _modes = { n = "N", i = "I", v = "V", V = "VL", ["\22"] = "VB", R = "R", c
 _G.statusline_mode = function() return _modes[vim.fn.mode()] or vim.fn.mode() end
 vim.opt.statusline = " %{v:lua.statusline_mode()} | %f %m%r%= %y | %l:%c "
 
-vim.api.nvim_create_autocmd("CmdlineEnter", { callback = function() vim.opt.laststatus = 0 end })
+-- Hide the statusline before the cmdline row is reserved so the layout does
+-- not shift by one row on entry.  Key remaps fire synchronously before Neovim
+-- opens the cmdline, whereas CmdlineEnter fires after the row is already
+-- reserved — that one-event gap is the source of the jitter.
+local function _hide_sl_and_feed(key)
+	vim.opt.laststatus = 0
+	return key
+end
+
+for _, key in ipairs({ ":", "/", "?" }) do
+	vim.keymap.set({ "n", "v" }, key, function() return _hide_sl_and_feed(key) end,
+		{ expr = true, silent = true, desc = "Hide statusline then open cmdline" })
+end
+
+-- Multi-key cmdline openers: q:, q/, q?, @:
+-- These need a two-step approach: on the first key (q or @) we cannot yet know
+-- the user's intent, so we set laststatus=0 eagerly and then feed the
+-- original sequence.  Using <Cmd> avoids remapping side-effects.
+for _, seq in ipairs({ "q:", "q/", "q?", "@:" }) do
+	vim.keymap.set({ "n", "v" }, seq, function()
+		vim.opt.laststatus = 0
+		local keys = vim.api.nvim_replace_termcodes(seq, true, false, true)
+		vim.api.nvim_feedkeys(keys, "n", false)
+	end, { silent = true, desc = "Hide statusline then open cmdline (" .. seq .. ")" })
+end
+
+-- Restore statusline when the cmdline closes (Enter or Esc).
 vim.api.nvim_create_autocmd("CmdlineLeave", { callback = function() vim.opt.laststatus = 3 end })
+
+-- Safety net: if cmdline is entered via any other path (e.g. a mapping that
+-- directly calls nvim_feedkeys with a colon), hide the statusline then too.
+-- This fires after the row is reserved but at least keeps the two states in
+-- sync for the leave path.
+vim.api.nvim_create_autocmd("CmdlineEnter", { callback = function() vim.opt.laststatus = 0 end })
 
 -- Treesitter highlighting wherever a parser is available.
 vim.api.nvim_create_autocmd("FileType", {
