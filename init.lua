@@ -116,7 +116,7 @@ end
 
 for _, key in ipairs({ ":", "/", "?" }) do
 	vim.keymap.set({ "n", "v" }, key, function() return _hide_sl_and_feed(key) end,
-		{ expr = true, silent = true, desc = "Hide statusline then open cmdline" })
+		{ expr = true, desc = "Hide statusline then open cmdline" })
 end
 
 -- Multi-key cmdline openers: q:, q/, q?, @:
