@@ -1,0 +1,13 @@
+# Yazi keymap used only when launched from nvim.
+# Activated by YAZI_CONFIG_HOME=<nvim>/lua set in lua/yazi.lua _launch().
+#
+# Default Enter on a `search --via=rg` hit can leave yazi without writing
+# to --chooser-file (the hovered entry is a search URN, not a real path).
+# Sequencing `escape --search` first drops the search overlay so the
+# underlying file is hovered; the subsequent `open` then writes its path
+# to the chooser file and exits as the nvim module expects.
+
+[[manager.prepend_keymap]]
+on   = "<Enter>"
+run  = [ "escape --search", "open" ]
+desc = "Open hovered (search-aware, chooser-file friendly)"

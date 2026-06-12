@@ -1,5 +1,18 @@
 local M = {}
 
+local config_home = vim.fn.stdpath("config") .. "/lua"
+
+-- yazi emits `search://<session>:<line>:<col>//<absolute path>` from
+-- `search --via=rg` hits via --chooser-file. Strip to a plain path and
+-- surface the line:col for cursor placement.
+local function parse_chosen(s)
+  local line, col, path = s:match("^search://[^:]+:(%d+):(%d+)/(/.+)$")
+  if path then
+    return path, tonumber(line), tonumber(col)
+  end
+  return s, nil, nil
+end
+
 local function _launch(dir, prev_buf)
   local tmp = vim.fn.tempname()
   vim.cmd("enew")
@@ -7,6 +20,7 @@ local function _launch(dir, prev_buf)
   vim.bo.bufhidden = "wipe"
   vim.bo.swapfile = false
   vim.fn.termopen({ "yazi", "--chooser-file", tmp, dir }, {
+    env = { YAZI_CONFIG_HOME = config_home },
     on_exit = function()
       vim.schedule(function()
         local chosen
@@ -18,7 +32,11 @@ local function _launch(dir, prev_buf)
         end
         vim.fn.delete(tmp)
         if chosen then
-          vim.cmd("edit " .. vim.fn.fnameescape(chosen))
+          local path, line, col = parse_chosen(chosen)
+          vim.cmd("edit " .. vim.fn.fnameescape(path))
+          if line then
+            pcall(vim.api.nvim_win_set_cursor, 0, { line, math.max((col or 1) - 1, 0) })
+          end
         else
           if prev_buf and vim.api.nvim_buf_is_valid(prev_buf)
             and vim.api.nvim_buf_get_name(prev_buf) ~= "" then

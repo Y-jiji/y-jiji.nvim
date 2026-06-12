@@ -1,0 +1,2 @@
+# Yazi config used only when launched from nvim.
+# Activated by YAZI_CONFIG_HOME set in lua/yazi.lua _launch().
