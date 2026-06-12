@@ -35,8 +35,14 @@ require("lazy").setup({
         {
             "Y-jiji/tinymist-kitty",
             ft = "typst",
-            opt = { dpi = 384 },
-            build = "cargo install --path crates/typst-term-preview --locked"
+            opts = {
+                dpi = 96,
+                cell_px = { w = 19, h = 42 },
+                -- No debounce: every frame flushes immediately. Restores
+                -- snappy edit-to-preview responsiveness.
+                emit_debounce_ms = 0,
+            },
+            build = "cargo install --path crates/typst-term-preview --locked",
         },
 		{
 			"sphamba/smear-cursor.nvim",
@@ -126,7 +132,7 @@ for key, dir in pairs({ Left = "h", Down = "j", Up = "k", Right = "l" }) do
 end
 
 -- Yazi as the file picker / directory opener.
-vim.keymap.set({ "n", "v", "i" }, "<leader>-",
+vim.keymap.set({ "n", "v" }, "<leader>-",
 	function() require("yazi").open() end,
 	{ desc = "Open yazi in current window" })
 require("yazi").setup()

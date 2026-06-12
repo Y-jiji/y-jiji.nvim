@@ -5,5 +5,5 @@
   "plenary.nvim": { "branch": "master", "commit": "74b06c6c75e4eeb3108ec01852001636d85a932b" },
   "smear-cursor.nvim": { "branch": "main", "commit": "9e9378d6ee34bb3782e0e8c63d9ec8ca618b479b" },
   "telescope.nvim": { "branch": "master", "commit": "7d324792b7943e4aa16ad007212e6acc6f9fe335" },
-  "tinymist-kitty": { "branch": "master", "commit": "55d913781e5177f5c906dff75c9537de082c0c39" }
+  "tinymist-kitty": { "branch": "master", "commit": "fa25a805499aa38a88302456bcf16a303a8bde94" }
 }
