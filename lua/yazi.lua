@@ -2,15 +2,12 @@ local M = {}
 
 local config_home = vim.fn.stdpath("config") .. "/lua"
 
--- yazi emits `search://<session>:<line>:<col>//<absolute path>` from
--- `search --via=rg` hits via --chooser-file. Strip to a plain path and
--- surface the line:col for cursor placement.
+-- yazi emits `search~?://<domain>:<uri>:<urn>//<absolute path>` from
+-- `search --via=rg` hits via --chooser-file. The two numeric fields are
+-- yazi's internal Loc offsets (uri/urn path-component boundaries), NOT
+-- line/column — strip them and return the underlying path.
 local function parse_chosen(s)
-  local line, col, path = s:match("^search://[^:]+:(%d+):(%d+)/(/.+)$")
-  if path then
-    return path, tonumber(line), tonumber(col)
-  end
-  return s, nil, nil
+  return s:match("^search~?://[^:]+:%d+:%d+/(/.+)$") or s
 end
 
 local function _launch(dir, prev_buf)
@@ -32,11 +29,7 @@ local function _launch(dir, prev_buf)
         end
         vim.fn.delete(tmp)
         if chosen then
-          local path, line, col = parse_chosen(chosen)
-          vim.cmd("edit " .. vim.fn.fnameescape(path))
-          if line then
-            pcall(vim.api.nvim_win_set_cursor, 0, { line, math.max((col or 1) - 1, 0) })
-          end
+          vim.cmd("edit " .. vim.fn.fnameescape(parse_chosen(chosen)))
         else
           if prev_buf and vim.api.nvim_buf_is_valid(prev_buf)
             and vim.api.nvim_buf_get_name(prev_buf) ~= "" then
