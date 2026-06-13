@@ -56,7 +56,7 @@ require("lazy").setup({
 			"Julian/lean.nvim",
 			lazy = false,
 			dependencies = { "nvim-lua/plenary.nvim" },
-			opts = { mappings = true },
+			opts = { mappings = true, signs = { enabled = false } },
 		},
 	},
 	-- auto update checking
