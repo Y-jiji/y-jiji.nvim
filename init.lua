@@ -56,7 +56,11 @@ require("lazy").setup({
 			"Julian/lean.nvim",
 			lazy = false,
 			dependencies = { "nvim-lua/plenary.nvim" },
-			opts = { mappings = true, signs = { enabled = false } },
+			opts = {
+					mappings = true,
+					signs = { enabled = false },
+					goal_markers = { accomplished = "", },
+				},
 		},
 	},
 	-- auto update checking
@@ -229,3 +233,6 @@ vim.keymap.set("n", "<F8>", function() vim.diagnostic.setqflist({ open = true })
 	{ desc = "Populate quickfix with all diagnostics and open" })
 vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP Code Actions" })
 vim.keymap.set("n", "<leader>cf", function() vim.lsp.buf.format() end, { desc = "Format code" })
+
+-- PDF viewer (Kitty graphics protocol)
+require("pdf").setup()
