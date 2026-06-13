@@ -53,17 +53,8 @@ require("lazy").setup({
 			},
 		},
 		{
-			"nvim-telescope/telescope.nvim",
-			dependencies = { "nvim-lua/plenary.nvim" },
-			keys = {
-				{ "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
-				{ "<leader>fb", "<cmd>Telescope buffers<cr>",   desc = "Buffers" },
-				{ "<leader>fh", "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
-			},
-		},
-		{
 			"Julian/lean.nvim",
-			event = { "BufReadPre *.lean", "BufNewFile *.lean" },
+			lazy = false,
 			dependencies = { "nvim-lua/plenary.nvim" },
 			opts = { mappings = true },
 		},
@@ -114,9 +105,46 @@ local _modes = { n = "N", i = "I", v = "V", V = "VL", ["\22"] = "VB", R = "R", c
 _G.statusline_mode = function() return _modes[vim.fn.mode()] or vim.fn.mode() end
 vim.opt.statusline = " %{v:lua.statusline_mode()} | %f %m%r%= %y | %l:%c "
 
--- Treesitter highlighting wherever a parser is available.
+-- Treesitter highlighting wherever a parser is available; fall back to vim syntax.
 vim.api.nvim_create_autocmd("FileType", {
-	callback = function(args) pcall(vim.treesitter.start, args.buf) end,
+	callback = function(args)
+		local lang = vim.treesitter.language.get_lang(args.match) or args.match
+		if pcall(vim.treesitter.language.inspect, lang) then
+			vim.treesitter.start(args.buf, lang)
+		else
+			vim.bo[args.buf].syntax = args.match
+		end
+	end,
+})
+
+-- Force semantic tokens for leanls: the server responds to the request but
+-- does not advertise the capability in a way Neovim parses.
+local lean_sem_legend = {
+	tokenTypes = {
+		"keyword", "variable", "property", "function",
+		"namespace", "type", "class", "enum", "interface", "struct",
+		"typeParameter", "parameter", "enumMember", "event", "method",
+		"macro", "modifier", "comment", "string", "number",
+		"regexp", "operator", "decorator", "leanSorryLike",
+	},
+	tokenModifiers = {
+		"declaration", "definition", "readonly", "static",
+		"deprecated", "abstract", "async", "modification",
+		"documentation", "defaultLibrary",
+	},
+}
+vim.api.nvim_create_autocmd("LspAttach", {
+	callback = function(args)
+		local client = vim.lsp.get_client_by_id(args.data.client_id)
+		if not client or client.name ~= "leanls" then return end
+		vim.defer_fn(function()
+			if not vim.api.nvim_buf_is_valid(args.buf) then return end
+			client.server_capabilities.semanticTokensProvider = {
+				full = true, range = true, legend = lean_sem_legend,
+			}
+			vim.lsp.semantic_tokens.start(args.buf, args.data.client_id)
+		end, 500)
+	end,
 })
 
 -- Cursor navigation: arrow keys move by display line.
