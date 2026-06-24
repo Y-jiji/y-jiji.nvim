@@ -4,17 +4,17 @@
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
-	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-	local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-	if vim.v.shell_error ~= 0 then
-		vim.api.nvim_echo({
-			{ "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-			{ out,                            "WarningMsg" },
-			{ "\nPress any key to exit..." },
-		}, true, {})
-		vim.fn.getchar()
-		os.exit(1)
-	end
+    local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+    local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+    if vim.v.shell_error ~= 0 then
+        vim.api.nvim_echo({
+            { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+            { out,                            "WarningMsg" },
+            { "\nPress any key to exit..." },
+        }, true, {})
+        vim.fn.getchar()
+        os.exit(1)
+    end
 end
 vim.opt.rtp:prepend(lazypath)
 
@@ -25,13 +25,13 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
 require("lazy").setup({
-	spec = {
-		{
-			"nvim-treesitter/nvim-treesitter",
-			branch = "main",
-			lazy = false,
-			build = ":TSUpdate",
-		},
+    spec = {
+        {
+            "nvim-treesitter/nvim-treesitter",
+            branch = "main",
+            lazy = false,
+            build = ":TSUpdate",
+        },
         {
             "Y-jiji/tinymist-kitty",
             ft = "typst",
@@ -44,27 +44,27 @@ require("lazy").setup({
             },
             build = "cargo install --path crates/typst-term-preview --locked",
         },
-		{
-			"sphamba/smear-cursor.nvim",
-			opts = {
-				smear_between_buffers = true,
-				smear_between_neighbor_lines = false,
-				smear_insert_mode = true,
-			},
-		},
-		{
-			"Julian/lean.nvim",
-			lazy = false,
-			dependencies = { "nvim-lua/plenary.nvim" },
-			opts = {
-					mappings = true,
-					signs = { enabled = false },
-					goal_markers = { accomplished = "", },
-				},
-		},
-	},
-	-- auto update checking
-	checker = { enabled = true },
+        {
+            "sphamba/smear-cursor.nvim",
+            opts = {
+                smear_between_buffers = true,
+                smear_between_neighbor_lines = false,
+                smear_insert_mode = true,
+            },
+        },
+        {
+            "Julian/lean.nvim",
+            lazy = false,
+            dependencies = { "nvim-lua/plenary.nvim" },
+            opts = {
+                mappings = true,
+                signs = { enabled = false },
+                goal_markers = { accomplished = "", },
+            },
+        },
+    },
+    -- auto update checking
+    checker = { enabled = true },
 })
 
 -- =============================================================================
@@ -74,15 +74,14 @@ require("lazy").setup({
 -- Default indent (soft default; ftplugins/.editorconfig may override).
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
-vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
-vim.opt.autoindent = true
+vim.opt.autoindent = false
 
 -- Persistent undo, swap, and backup in centralized dirs.
 -- The // suffix encodes full file paths to ensure uniqueness.
 local statedir = vim.fn.stdpath("state")
 for _, sub in ipairs({ "undo", "swap", "backup" }) do
-	vim.fn.mkdir(statedir .. "/" .. sub, "p")
+    vim.fn.mkdir(statedir .. "/" .. sub, "p")
 end
 vim.opt.undofile = true
 vim.opt.undodir = statedir .. "/undo//"
@@ -109,48 +108,6 @@ local _modes = { n = "N", i = "I", v = "V", V = "VL", ["\22"] = "VB", R = "R", c
 _G.statusline_mode = function() return _modes[vim.fn.mode()] or vim.fn.mode() end
 vim.opt.statusline = " %{v:lua.statusline_mode()} | %f %m%r%= %y | %l:%c "
 
--- Treesitter highlighting wherever a parser is available; fall back to vim syntax.
-vim.api.nvim_create_autocmd("FileType", {
-	callback = function(args)
-		local lang = vim.treesitter.language.get_lang(args.match) or args.match
-		if pcall(vim.treesitter.language.inspect, lang) then
-			vim.treesitter.start(args.buf, lang)
-		else
-			vim.bo[args.buf].syntax = args.match
-		end
-	end,
-})
-
--- Force semantic tokens for leanls: the server responds to the request but
--- does not advertise the capability in a way Neovim parses.
-local lean_sem_legend = {
-	tokenTypes = {
-		"keyword", "variable", "property", "function",
-		"namespace", "type", "class", "enum", "interface", "struct",
-		"typeParameter", "parameter", "enumMember", "event", "method",
-		"macro", "modifier", "comment", "string", "number",
-		"regexp", "operator", "decorator", "leanSorryLike",
-	},
-	tokenModifiers = {
-		"declaration", "definition", "readonly", "static",
-		"deprecated", "abstract", "async", "modification",
-		"documentation", "defaultLibrary",
-	},
-}
-vim.api.nvim_create_autocmd("LspAttach", {
-	callback = function(args)
-		local client = vim.lsp.get_client_by_id(args.data.client_id)
-		if not client or client.name ~= "leanls" then return end
-		vim.defer_fn(function()
-			if not vim.api.nvim_buf_is_valid(args.buf) then return end
-			client.server_capabilities.semanticTokensProvider = {
-				full = true, range = true, legend = lean_sem_legend,
-			}
-			vim.lsp.semantic_tokens.start(args.buf, args.data.client_id)
-		end, 500)
-	end,
-})
-
 -- Cursor navigation: arrow keys move by display line.
 vim.keymap.set("n", "<down>", "gj")
 vim.keymap.set("n", "<up>", "gk")
@@ -159,80 +116,143 @@ vim.keymap.set("i", "<Up>", "<C-o>gk", { noremap = true, silent = true })
 
 -- Window navigation: Ctrl+Arrow in any mode.
 for key, dir in pairs({ Left = "h", Down = "j", Up = "k", Right = "l" }) do
-	vim.keymap.set({ "n", "v", "i", "t" }, "<C-" .. key .. ">", "<Cmd>wincmd " .. dir .. "<CR>",
-		{ desc = "Window " .. key:lower() })
+    vim.keymap.set({ "n", "v", "i", "t" }, "<C-" .. key .. ">", "<Cmd>wincmd " .. dir .. "<CR>",
+        { desc = "Window " .. key:lower() })
 end
 
--- Yazi as the file picker / directory opener.
-vim.keymap.set({ "n", "v" }, "<leader>-",
-	function() require("yazi").open() end,
-	{ desc = "Open yazi in current window" })
-require("yazi").setup()
+-- =============================================================================
+-- Highlighting (tree-sitter, syntax, diagnostics, semantic tokens)
+-- =============================================================================
+
+-- severity_sort places the most severe diagnostic's virtual text first on each
+-- line, so the dominant (red) message reads at the top.
+vim.diagnostic.config({
+    underline = true,        -- squiggly underline under the offending text
+    virtual_text = true,     -- inline message to the right of the line
+    signs = false,           -- no gutter markers in the sign column
+    severity_sort = true,    -- most severe diagnostic's text renders first per line
+})
+
+-- Force semantic tokens for leanls: the server responds to the request but
+-- does not advertise the capability in a way Neovim parses.
+-- Lean core only emits the first four token types; "leanSorryLike" is a Lean
+-- extension that must stay at index 23 (the server sends positional indices, so
+-- the unused middle entries cannot be dropped without shifting it). Lean core
+-- emits no modifiers, so the modifier list is omitted.
+local lean_sem_legend = {
+    tokenTypes = {
+        "keyword", "variable", "property", "function",
+        "_", "_", "_", "_", "_", "_", "_", "_", "_", "_",
+        "_", "_", "_", "_", "_", "_", "_", "_", "_",
+        "leanSorryLike",
+    },
+    tokenModifiers = {},
+}
+
+-- The tree-sitter language for a buffer, or nil if no parser is available.
+local function buf_ts_lang(buf)
+    local lang = vim.treesitter.language.get_lang(vim.bo[buf].filetype)
+    if lang and pcall(vim.treesitter.get_parser, buf, lang) then return lang end
+end
+
+-- Wherever a parser exists, start tree-sitter highlighting and disable the
+-- regex `.vim` syntax; lean has no parser but is driven by LSP semantic tokens,
+-- so its syntax is dropped too. Hooked on `Syntax` (fires after the runtime
+-- sources the syntax file) so it's immune to autocmd registration order.
+vim.api.nvim_create_autocmd("Syntax", {
+    pattern = "*",
+    callback = function(args)
+        if buf_ts_lang(args.buf) then
+            vim.treesitter.start(args.buf)
+            vim.bo[args.buf].syntax = "OFF"
+        elseif vim.bo[args.buf].filetype == "lean" then
+            vim.bo[args.buf].syntax = "OFF"
+        end
+    end,
+})
+
+-- Semantic tokens: force them on for leanls; suppress them where tree-sitter
+-- already highlights.
+vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if not client then return end
+        if client.name == "leanls" then
+            client.server_capabilities.semanticTokensProvider = {
+                full = true, range = true, legend = lean_sem_legend,
+            }
+            vim.lsp.semantic_tokens.start(args.buf, args.data.client_id)
+        elseif buf_ts_lang(args.buf) then
+            client.server_capabilities.semanticTokensProvider = nil
+        end
+    end,
+})
 
 -- =============================================================================
 -- LSP servers and keymaps
 -- =============================================================================
 
 vim.lsp.config("rust_analyzer", {
-	cmd = { "rust-analyzer" },
-	root_markers = { "Cargo.toml" },
-	filetypes = { "rust" },
+    cmd = { "rust-analyzer" },
+    root_markers = { "Cargo.toml" },
+    filetypes = { "rust" },
 })
 vim.lsp.enable("rust_analyzer")
 vim.lsp.config("texlab", {
-	cmd = { "texlab" },
-	filetypes = { "tex", "plaintex", "bibtex" },
-	root_markers = { "latexmkrc" },
-	settings = { texlab = { build = { onSave = true } } },
+    cmd = { "texlab" },
+    filetypes = { "tex", "plaintex", "bibtex" },
+    root_markers = { "latexmkrc" },
+    settings = { texlab = { build = { onSave = true } } },
 })
 vim.lsp.enable("texlab")
 vim.lsp.config("clangd", {
-	cmd = { "clangd" },
-	filetypes = { "c", "cpp", "cuda" },
-	root_markers = { "compile_commands.json", ".clangd" },
+    cmd = { "clangd" },
+    filetypes = { "c", "cpp", "cuda" },
+    root_markers = { "compile_commands.json", ".clangd" },
 })
 vim.lsp.enable("clangd")
 vim.lsp.config("tinymist", {
-	cmd = { "tinymist" },
-	filetypes = { "typst" },
-	root_markers = { "typst.toml", ".git" },
+    cmd = { "tinymist" },
+    filetypes = { "typst" },
+    root_markers = { "typst.toml", ".git" },
 })
 vim.lsp.enable("tinymist")
 vim.lsp.config("lua_ls", {
-	cmd = { "lua-language-server" },
-	filetypes = { "lua" },
+    cmd = { "lua-language-server" },
+    filetypes = { "lua" },
 })
 vim.lsp.enable("lua_ls")
 
-vim.diagnostic.config({
-	underline = true,
-	virtual_text = { severity = { min = vim.diagnostic.severity.WARN } },
-	signs = false,
-	severity_sort = true,
-})
+vim.opt.completeopt = { "noselect", "noinsert", "menu", "menuone" }
 
+-- Completion: enable autotrigger for any client that supports it.
 vim.api.nvim_create_autocmd("LspAttach", {
-	callback = function(args)
-		local client = vim.lsp.get_client_by_id(args.data.client_id)
-		if not client then return end
-		if client:supports_method("textDocument/completion") then
-			vim.lsp.completion.enable(true, client.id, args.buf)
-		end
-		local lang = vim.treesitter.language.get_lang(vim.bo[args.buf].filetype)
-		if lang and pcall(vim.treesitter.get_parser, args.buf, lang) then
-			-- Treesitter owns this buffer; drop the server's token coloring.
-			client.server_capabilities.semanticTokensProvider = nil
-		end
-	end,
+    callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if client and client:supports_method("textDocument/completion") then
+            vim.lsp.completion.enable(true, client.id, args.buf, { autotrigger = true })
+        end
+    end,
 })
 
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Hover" })
 vim.keymap.set("n", "<F12>", vim.lsp.buf.definition, { desc = "Goto definition" })
 vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, { desc = "Rename" })
 vim.keymap.set("n", "<F8>", function() vim.diagnostic.setqflist({ open = true }) end,
-	{ desc = "Populate quickfix with all diagnostics and open" })
+    { desc = "Populate quickfix with all diagnostics and open" })
 vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP Code Actions" })
 vim.keymap.set("n", "<leader>cf", function() vim.lsp.buf.format() end, { desc = "Format code" })
 
--- PDF viewer (Kitty graphics protocol)
+-- =============================================================================
+-- Kitty Graphics Modules
+-- =============================================================================
+
+-- Display PDF
 require("pdf").setup()
+
+-- Yazi as the file picker / directory opener.
+vim.keymap.set({ "n", "v" }, "<leader>-",
+    function() require("yazi").open() end,
+    { desc = "Open yazi in current window" })
+require("yazi").setup()
+
