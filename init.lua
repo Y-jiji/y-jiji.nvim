@@ -103,10 +103,22 @@ vim.opt.laststatus = 3
 vim.opt.showmode = false
 vim.opt.showcmd = false
 vim.opt.ruler = false
+vim.opt.showtabline = 0  -- no tab bar; tabs are shown as dots in the statusline
 
 local _modes = { n = "N", i = "I", v = "V", V = "VL", ["\22"] = "VB", R = "R", c = "C", t = "T", s = "S" }
 _G.statusline_mode = function() return _modes[vim.fn.mode()] or vim.fn.mode() end
-vim.opt.statusline = " %{v:lua.statusline_mode()} | %f %m%r%= %y | %l:%c "
+
+-- One dot per tabpage, current filled; shown only when more than one tab exists.
+_G.statusline_tabs = function()
+    local n = vim.fn.tabpagenr("$")
+    if n < 2 then return "" end
+    local cur = vim.fn.tabpagenr()
+    local dots = {}
+    for i = 1, n do dots[i] = (i == cur) and "●" or "○" end
+    return table.concat(dots) .. " | "
+end
+
+vim.opt.statusline = " %{v:lua.statusline_mode()} | %f %m%r%= %y | %{v:lua.statusline_tabs()}%l:%c "
 
 -- Cursor navigation: arrow keys move by display line.
 vim.keymap.set("n", "<down>", "gj")
@@ -155,18 +167,17 @@ local function buf_ts_lang(buf)
     if lang and pcall(vim.treesitter.get_parser, buf, lang) then return lang end
 end
 
--- Wherever a parser exists, start tree-sitter highlighting and disable the
--- regex `.vim` syntax; lean has no parser but is driven by LSP semantic tokens,
--- so its syntax is dropped too. Hooked on `Syntax` (fires after the runtime
--- sources the syntax file) so it's immune to autocmd registration order.
+-- Always disable the regex `.vim` syntax, then start tree-sitter where a parser
+-- exists. Filetypes with no parser get no highlighting at all -- a deliberate
+-- signal to go install a parser (lean is the exception, driven by LSP semantic
+-- tokens). Hooked on `Syntax` (fires after the runtime sources the syntax file)
+-- so it's immune to autocmd registration order.
 vim.api.nvim_create_autocmd("Syntax", {
     pattern = "*",
     callback = function(args)
+        vim.bo[args.buf].syntax = "OFF"
         if buf_ts_lang(args.buf) then
             vim.treesitter.start(args.buf)
-            vim.bo[args.buf].syntax = "OFF"
-        elseif vim.bo[args.buf].filetype == "lean" then
-            vim.bo[args.buf].syntax = "OFF"
         end
     end,
 })
