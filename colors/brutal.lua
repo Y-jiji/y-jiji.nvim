@@ -1,11 +1,11 @@
 vim.cmd("hi clear")
 vim.g.colors_name = "brutal"
 
-local hl = vim.api.nvim_set_hl
+local hl = function(...) vim.api.nvim_set_hl(0, ...) end
 local dark = vim.o.background == "dark"
 
 local c = {
-    bg        = dark and "#000000" or "#FFFFFF",
+    bg        = dark and "NONE"    or "#FFFFFF",
     fg        = dark and "#FFFFFF" or "#000000",
     faint     = dark and "#AAAAAA" or "#999999",
     red       = "#FF0000",
@@ -16,86 +16,105 @@ local c = {
     dim       = dark and "#111111" or "#EEEEEE",
 }
 
+-- Capture every non-configured group
+-- for hlg, _ in pairs(vim.api.nvim_get_hl(0, {})) do
+--     hl(hlg, { bg = c.red })
+-- end
+
 -- Surrounding Components
-hl(0, "Normal", { fg = c.fg })
-hl(0, "LineNr", { fg = c.blue })
-hl(0, "CursorLineNr", { fg = c.blue })
-hl(0, "CursorLine", { bg = c.selection })
-hl(0, "Visual", { bg = c.selection })
-hl(0, "Pmenu", { fg = c.fg, bg = c.dim })
-hl(0, "PmenuSel", { fg = c.dim, bg = c.fg })
-hl(0, "PmenuBorder", { bg = c.dim })
-hl(0, "StatusLine", { fg = c.fg })
-hl(0, "TabLine", { fg = c.fg, bg = c.bg })
-hl(0, "TabLineSel", { fg = c.fg, bg = c.bg, underline = true })
-hl(0, "Search", { fg = c.bg, bg = c.blue })
-hl(0, "MatchParen", { fg = c.red, bold = true })
-hl(0, "DiagnosticHint", { fg = c.green })
-hl(0, "DiagnosticError", { bg = c.red, fg = c.bg })
-hl(0, "DiagnosticError", { fg = c.red })
-hl(0, "DiagnosticWarn", { fg = c.orange })
-hl(0, "DiagnosticInfo", { fg = c.blue })
-hl(0, "DiffAdd", { fg = c.green })
-hl(0, "DiffChange", { fg = c.blue })
-hl(0, "DiffDelete", { fg = c.red })
+hl("Normal", { fg = c.fg })
+hl("LineNr", { fg = c.blue })
+hl("CursorLineNr", { fg = c.blue })
+hl("CursorLine", { bg = c.selection })
+hl("Visual", { bg = c.selection })
+hl("Pmenu", { fg = c.fg, bg = c.dim })
+hl("PmenuSel", { fg = c.dim, bg = c.fg })
+hl("PmenuBorder", { bg = c.dim })
+hl("StatusLine", { fg = c.fg })
+hl("TabLine", { fg = c.fg, bg = c.bg })
+hl("TabLineSel", { fg = c.fg, bg = c.bg, underline = true })
+hl("Search", { fg = c.bg, bg = c.blue })
+hl("MatchParen", { fg = c.red, bold = true })
+hl("DiagnosticHint", { fg = c.green })
+hl("DiagnosticError", { bg = c.red, fg = c.bg })
+hl("DiagnosticError", { fg = c.red })
+hl("DiagnosticWarn", { fg = c.orange })
+hl("DiagnosticUnderlineWarn", { underline = true, sp = c.orange })
+hl("DiagnosticInfo", { fg = c.blue })
+hl("DiffAdd", { fg = c.green })
+hl("DiffChange", { fg = c.blue })
+hl("DiffDelete", { fg = c.red })
+hl("MsgArea", { fg = c.red, bg = c.bg })
+hl("NonText", { fg = c.red, bg = c.bg })
 
--- Code: Type
-hl(0, "@type", { fg = c.fg })
-hl(0, "@type.builtin.rust", { fg = c.fg })
+-- Type
+hl("@type", { fg = c.fg })
+hl("@type.builtin.rust", { fg = c.fg })
 
--- Code: Term
-hl(0, "@constructor", { fg = c.blue })
-hl(0, "@property", { fg = c.blue })
-hl(0, "@attribute", { fg = c.blue })
-hl(0, "@attribute.rust", { fg = c.red })
-hl(0, "@attribute.builtin.rust", { fg = c.red })
-hl(0, "@variable", { fg = c.blue })
-hl(0, "@variable.builtin", { fg = c.red })
-hl(0, "@constant", { fg = c.blue })
-hl(0, "@constant.builtin", { fg = c.blue })
-hl(0, "@function", { fg = c.blue })
-hl(0, "@function.builtin", { fg = c.blue })
-hl(0, "@module", { fg = c.blue })
-hl(0, "@namespace", { fg = c.blue })
-hl(0, "@tag", { fg = c.blue })
-hl(0, "@tag.attribute", { fg = c.blue, italic = true })
+hl("@lsp.type.type", { fg = c.fg })
+hl("@lsp.type.class", { fg = c.fg })
+hl("@lsp.type.struct", { fg = c.fg })
+hl("@lsp.type.enum", { fg = c.fg })
+hl("@lsp.type.interface", { fg = c.fg })
 
--- Code: Keyword
-hl(0, "@keyword", { fg = c.red })
-hl(0, "@punctuation", { fg = c.red })
-hl(0, "@punctuation.special", { fg = c.red })
-hl(0, "@character.spectial.rust", { fg = c.red })
-hl(0, "@operator", { fg = c.red })
-hl(0, "@label", { fg = c.red })
-hl(0, "@tag.delimiter", { fg = c.red })
-hl(0, "@comment", { fg = c.faint, italic = true })
-hl(0, "@comment.todo", { fg = c.bg, bg = c.green, bold = true })
+-- Term
+hl("@constructor", { fg = c.blue })
+hl("@property", { fg = c.blue })
+hl("@attribute", { fg = c.blue })
+hl("@attribute.rust", { fg = c.red })
+hl("@attribute.builtin.rust", { fg = c.red })
+hl("@variable", { fg = c.blue })
+hl("@variable.builtin", { fg = c.red })
+hl("@constant", { fg = c.blue })
+hl("@constant.builtin", { fg = c.blue })
+hl("@function", { fg = c.blue })
+hl("@function.builtin", { fg = c.blue })
+hl("@module", { fg = c.blue })
+hl("@module.builtin", { fg = c.blue })
+hl("@namespace", { fg = c.blue })
+hl("@tag", { fg = c.blue })
+hl("@tag.attribute", { fg = c.blue, italic = true })
 
--- Code: Literal
-hl(0, "@string", { fg = c.green })
-hl(0, "@number", { fg = c.green })
-hl(0, "@character", { fg = c.green })
-hl(0, "@boolean", { fg = c.green })
+hl("@lsp.type.variable", { fg = c.blue })
+hl("@lsp.type.property", { fg = c.blue })
+hl("@lsp.type.function", { fg = c.blue })
+hl("@lsp.type.method", { fg = c.blue })
+hl("@lsp.type.namespace", { fg = c.blue })
+hl("@lsp.type.parameter", { fg = c.blue })
+hl("@lsp.type.enumMember", { fg = c.blue })
 
--- Code: Markup
-hl(0, "@markup.raw.markdown_inline",  { fg = c.blue })
-hl(0, "@markup.list.markdown", { fg = c.red })
+-- Keyword
+hl("@keyword", { fg = c.red })
+hl("@punctuation", { fg = c.red })
+hl("@punctuation.special", { fg = c.red })
+hl("@character.special.rust", { fg = c.red })
+hl("@operator", { fg = c.red })
+hl("@label", { fg = c.red })
+hl("@tag.delimiter", { fg = c.red })
 
--- LSP semantic tokens (used when treesitter parser is unavailable)
-hl(0, "@lsp.type.keyword", { fg = c.red })
-hl(0, "@lsp.type.operator", { fg = c.red })
-hl(0, "@lsp.type.variable", { fg = c.blue })
-hl(0, "@lsp.type.property", { fg = c.blue })
-hl(0, "@lsp.type.function", { fg = c.blue })
-hl(0, "@lsp.type.method", { fg = c.blue })
-hl(0, "@lsp.type.namespace", { fg = c.blue })
-hl(0, "@lsp.type.type", { fg = c.fg })
-hl(0, "@lsp.type.class", { fg = c.fg })
-hl(0, "@lsp.type.struct", { fg = c.fg })
-hl(0, "@lsp.type.enum", { fg = c.fg })
-hl(0, "@lsp.type.interface", { fg = c.fg })
-hl(0, "@lsp.type.parameter", { fg = c.blue })
-hl(0, "@lsp.type.comment", { fg = c.faint, italic = true })
-hl(0, "@lsp.type.string", { fg = c.green })
-hl(0, "@lsp.type.number", { fg = c.green })
-hl(0, "@lsp.type.enumMember", { fg = c.blue })
+hl("@lsp.type.keyword", { fg = c.red })
+hl("@lsp.type.operator", { fg = c.red })
+
+-- Comment
+hl("@comment", { fg = c.faint, italic = true })
+hl("@comment.todo", { fg = c.bg, bg = c.green, bold = true })
+
+hl("@lsp.type.comment", { fg = c.faint, italic = true })
+
+-- Literal
+hl("@string", { fg = c.green })
+hl("@string.escape", { fg = c.green })
+hl("@number", { fg = c.green })
+hl("@character", { fg = c.green })
+hl("@boolean", { fg = c.green })
+
+hl("@lsp.type.string", { fg = c.green })
+hl("@lsp.type.number", { fg = c.green })
+
+-- Markup
+hl("@markup.raw.markdown_inline",  { fg = c.blue })
+hl("@markup.list.markdown", { fg = c.red })
+hl("@markup.raw.block.markdown", { fg = c.red })
+hl("@markup.heading.1.markdown", { underline = true, fg = c.fg, bold = true })
+hl("@markup.heading.2.markdown", { fg = c.fg, bold = true })
+hl("@markup.heading.3.markdown", { underline = true, fg = c.fg })

@@ -173,7 +173,6 @@ end
 -- tokens). Hooked on `Syntax` (fires after the runtime sources the syntax file)
 -- so it's immune to autocmd registration order.
 vim.api.nvim_create_autocmd("Syntax", {
-    pattern = "*",
     callback = function(args)
         vim.bo[args.buf].syntax = "OFF"
         if buf_ts_lang(args.buf) then
