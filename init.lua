@@ -38,8 +38,6 @@ require("lazy").setup({
             opts = {
                 dpi = 96,
                 cell_px = { w = 19, h = 42 },
-                -- No debounce: every frame flushes immediately. Restores
-                -- snappy edit-to-preview responsiveness.
                 emit_debounce_ms = 0,
             },
             build = "cargo install --path crates/typst-term-preview --locked",
@@ -51,6 +49,13 @@ require("lazy").setup({
                 smear_between_neighbor_lines = false,
                 smear_insert_mode = true,
             },
+        },
+        {
+            "folke/lazydev.nvim",
+            ft = "lua",
+            opts = { library = {
+                { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+            }, },
         },
         {
             "Julian/lean.nvim",
@@ -96,7 +101,6 @@ vim.opt.exrc = true
 -- =============================================================================
 
 vim.cmd("colorscheme brutal")
-vim.cmd("syntax off")
 
 vim.opt.cmdheight = 0
 vim.opt.laststatus = 3
@@ -167,22 +171,20 @@ local function buf_ts_lang(buf)
     if lang and pcall(vim.treesitter.get_parser, buf, lang) then return lang end
 end
 
--- Always disable the regex `.vim` syntax, then start tree-sitter where a parser
--- exists. Filetypes with no parser get no highlighting at all -- a deliberate
--- signal to go install a parser (lean is the exception, driven by LSP semantic
--- tokens). Hooked on `Syntax` (fires after the runtime sources the syntax file)
--- so it's immune to autocmd registration order.
+-- Disable regex-based nvim sytnax, use tree-sitter index
 vim.api.nvim_create_autocmd("Syntax", {
     callback = function(args)
-        vim.bo[args.buf].syntax = "OFF"
+        if vim.bo[args.buf].syntax ~= "OFF" then
+            vim.bo[args.buf].syntax = "OFF"
+        end
         if buf_ts_lang(args.buf) then
             vim.treesitter.start(args.buf)
         end
     end,
 })
 
--- Semantic tokens: force them on for leanls; suppress them where tree-sitter
--- already highlights.
+-- Use treesitter only if available
+-- Exception: leanls don't have reliable treesitter (truely dependent on semantics)
 vim.api.nvim_create_autocmd("LspAttach", {
     callback = function(args)
         local client = vim.lsp.get_client_by_id(args.data.client_id)
@@ -191,7 +193,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
             client.server_capabilities.semanticTokensProvider = {
                 full = true, range = true, legend = lean_sem_legend,
             }
-            vim.lsp.semantic_tokens.start(args.buf, args.data.client_id)
         elseif buf_ts_lang(args.buf) then
             client.server_capabilities.semanticTokensProvider = nil
         end
@@ -256,9 +257,6 @@ vim.keymap.set("n", "<leader>cf", function() vim.lsp.buf.format() end, { desc = 
 -- =============================================================================
 -- Kitty Graphics Modules
 -- =============================================================================
-
--- Display PDF
-require("pdf").setup()
 
 -- Yazi as the file picker / directory opener.
 vim.keymap.set({ "n", "v" }, "<leader>-",
