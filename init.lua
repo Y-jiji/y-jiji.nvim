@@ -1,4 +1,16 @@
 -- =============================================================================
+-- Debug mode tool
+-- =============================================================================
+
+DEBUG = false
+
+function vim.debug(msg)
+    if DEBUG then
+        vim.print(msg)
+    end
+end
+
+-- =============================================================================
 -- Lazy.nvim bootstrap and plugin specs
 -- =============================================================================
 
@@ -26,12 +38,6 @@ vim.g.loaded_netrwPlugin = 1
 
 require("lazy").setup({
     spec = {
-        {
-            "nvim-treesitter/nvim-treesitter",
-            branch = "main",
-            lazy = false,
-            build = ":TSUpdate",
-        },
         {
             "Y-jiji/tinymist-kitty",
             ft = "typst",
@@ -140,6 +146,8 @@ end
 -- Highlighting (tree-sitter, syntax, diagnostics, semantic tokens)
 -- =============================================================================
 
+vim.cmd("syntax off")
+
 -- severity_sort places the most severe diagnostic's virtual text first on each
 -- line, so the dominant (red) message reads at the top.
 vim.diagnostic.config({
@@ -160,7 +168,7 @@ local lean_sem_legend = {
         "keyword", "variable", "property", "function",
         "_", "_", "_", "_", "_", "_", "_", "_", "_", "_",
         "_", "_", "_", "_", "_", "_", "_", "_", "_",
-        "leanSorryLike",
+        "_",
     },
     tokenModifiers = {},
 }
@@ -171,14 +179,23 @@ local function buf_ts_lang(buf)
     if lang and pcall(vim.treesitter.get_parser, buf, lang) then return lang end
 end
 
+-- Start treesitter
+vim.api.nvim_create_autocmd("FileType", {
+    callback = function(args)
+        local lang = buf_ts_lang(args.buf)
+        if lang then
+            vim.debug(("highlight(syntax): treesitter syntax on (original: %s)"):format(lang))
+            vim.treesitter.start(args.buf, lang)
+        end
+    end
+})
+
 -- Disable regex-based nvim sytnax, use tree-sitter index
 vim.api.nvim_create_autocmd("Syntax", {
     callback = function(args)
-        if vim.bo[args.buf].syntax ~= "OFF" then
-            vim.bo[args.buf].syntax = "OFF"
-        end
-        if buf_ts_lang(args.buf) then
-            vim.treesitter.start(args.buf)
+        if vim.bo[args.buf].syntax ~= "" then
+            vim.debug(("highlight(syntax): legacy syntax off (original: %s)"):format(vim.bo[args.buf].syntax))
+            vim.bo[args.buf].syntax = ""
         end
     end,
 })
@@ -190,10 +207,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
         local client = vim.lsp.get_client_by_id(args.data.client_id)
         if not client then return end
         if client.name == "leanls" then
+            vim.debug("highlight(semantics/lean): lean syntax on")
             client.server_capabilities.semanticTokensProvider = {
                 full = true, range = true, legend = lean_sem_legend,
             }
         elseif buf_ts_lang(args.buf) then
+            vim.debug("highlight(semantics): lsp semantics syntax off")
             client.server_capabilities.semanticTokensProvider = nil
         end
     end,
@@ -228,11 +247,11 @@ vim.lsp.config("tinymist", {
     root_markers = { "typst.toml", ".git" },
 })
 vim.lsp.enable("tinymist")
-vim.lsp.config("lua_ls", {
+vim.lsp.config("lua", {
     cmd = { "lua-language-server" },
     filetypes = { "lua" },
 })
-vim.lsp.enable("lua_ls")
+vim.lsp.enable("lua")
 
 vim.opt.completeopt = { "noselect", "noinsert", "menu", "menuone" }
 
