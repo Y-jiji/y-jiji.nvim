@@ -49,6 +49,13 @@ require("lazy").setup({
             build = "cargo install --path crates/typst-term-preview --locked",
         },
         {
+            "romus204/tree-sitter-manager.nvim",
+            dependencies = {}, -- tree-sitter CLI must be installed system-wide
+            config = function()
+                require("tree-sitter-manager").setup()
+            end,
+        },
+        {
             "sphamba/smear-cursor.nvim",
             opts = {
                 smear_between_buffers = true,
@@ -59,9 +66,11 @@ require("lazy").setup({
         {
             "folke/lazydev.nvim",
             ft = "lua",
-            opts = { library = {
-                { path = "${3rd}/luv/library", words = { "vim%.uv" } },
-            }, },
+            opts = {
+                library = {
+                    { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+                },
+            },
         },
         {
             "Julian/lean.nvim",
@@ -113,7 +122,7 @@ vim.opt.laststatus = 3
 vim.opt.showmode = false
 vim.opt.showcmd = false
 vim.opt.ruler = false
-vim.opt.showtabline = 0  -- no tab bar; tabs are shown as dots in the statusline
+vim.opt.showtabline = 0 -- no tab bar; tabs are shown as dots in the statusline
 
 local _modes = { n = "N", i = "I", v = "V", V = "VL", ["\22"] = "VB", R = "R", c = "C", t = "T", s = "S" }
 _G.statusline_mode = function() return _modes[vim.fn.mode()] or vim.fn.mode() end
@@ -151,10 +160,10 @@ vim.cmd("syntax off")
 -- severity_sort places the most severe diagnostic's virtual text first on each
 -- line, so the dominant (red) message reads at the top.
 vim.diagnostic.config({
-    underline = true,        -- squiggly underline under the offending text
-    virtual_text = true,     -- inline message to the right of the line
-    signs = false,           -- no gutter markers in the sign column
-    severity_sort = true,    -- most severe diagnostic's text renders first per line
+    underline = true,     -- squiggly underline under the offending text
+    virtual_text = true,  -- inline message to the right of the line
+    signs = false,        -- no gutter markers in the sign column
+    severity_sort = true, -- most severe diagnostic's text renders first per line
 })
 
 -- Force semantic tokens for leanls: the server responds to the request but
@@ -282,4 +291,3 @@ vim.keymap.set({ "n", "v" }, "<leader>-",
     function() require("yazi").open() end,
     { desc = "Open yazi in current window" })
 require("yazi").setup()
-
