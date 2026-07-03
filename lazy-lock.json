@@ -2,8 +2,8 @@
   "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
   "lazydev.nvim": { "branch": "main", "commit": "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d" },
   "lean.nvim": { "branch": "main", "commit": "0773e20595bbfa79a9dbd6afc8c14411042a3d98" },
-  "nvim-treesitter": { "branch": "main", "commit": "4916d6592ede8c07973490d9322f187e07dfefac" },
   "plenary.nvim": { "branch": "master", "commit": "74b06c6c75e4eeb3108ec01852001636d85a932b" },
   "smear-cursor.nvim": { "branch": "main", "commit": "9e9378d6ee34bb3782e0e8c63d9ec8ca618b479b" },
-  "tinymist-kitty": { "branch": "master", "commit": "fa25a805499aa38a88302456bcf16a303a8bde94" }
+  "tinymist-kitty": { "branch": "master", "commit": "fa25a805499aa38a88302456bcf16a303a8bde94" },
+  "tree-sitter-manager.nvim": { "branch": "main", "commit": "ae305699da5e97b6cffdd5cc6f6045b1b0bd26ea" }
 }
