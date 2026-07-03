@@ -229,6 +229,7 @@ end
 require("lazy").setup({
     spec = spec,
     lockfile = lockfile,
+    git = { url_format = "git@github.com:%s" },
     checker = { enabled = true },
 })
 
