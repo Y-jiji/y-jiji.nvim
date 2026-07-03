@@ -38,6 +38,48 @@ local function plugin(plugin_)
 end
 
 -- =============================================================================
+-- (Prolog::LSP) define list of lsps, setup default hooks
+-- =============================================================================
+
+-- variable for collecting lsp
+local lsps = {}
+local function lsp(name_, spec_)
+    lsps[name_] = spec_
+end
+
+-- severity_sort places the most severe diagnostic's virtual text first on each
+-- line, so the dominant (red) message reads at the top.
+vim.diagnostic.config({
+    underline = true,     -- squiggly underline under the offending text
+    virtual_text = true,  -- inline message to the right of the line
+    signs = false,        -- no gutter markers in the sign column
+    severity_sort = true, -- most severe diagnostic's text renders first per line
+})
+
+-- By default do not use semantic colors
+vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if not client then return end
+        vim.debug("highlight(semantics): lsp semantics syntax off")
+        client.server_capabilities.semanticTokensProvider = nil
+    end,
+})
+
+-- Hotkeys: setup default hot keys
+vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(_args)
+        vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Hover" })
+        vim.keymap.set("n", "<F12>", vim.lsp.buf.definition, { desc = "Goto definition" })
+        vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, { desc = "Rename" })
+        vim.keymap.set("n", "<F8>", function() vim.diagnostic.setqflist({ open = true }) end,
+            { desc = "Populate quickfix with all diagnostics and open" })
+        vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP Code Actions" })
+        vim.keymap.set("n", "<leader>cf", function() vim.lsp.buf.format() end, { desc = "Format code" })
+    end,
+})
+
+-- =============================================================================
 -- (Prolog::Statusline) remove most editor widgets
 -- =============================================================================
 
@@ -78,59 +120,6 @@ for key, dir in pairs({ Left = "h", Down = "j", Up = "k", Right = "l" }) do
     vim.keymap.set({ "n", "v", "i", "t" }, "<C-" .. key .. ">", "<Cmd>wincmd " .. dir .. "<CR>",
         { desc = "Window " .. key:lower() })
 end
-
--- =============================================================================
--- (Prolog::LSP) define list of lsps, setup default hooks
--- =============================================================================
-
--- variable for collecting lsp
-local lsps = {}
-local function lsp(name_, spec_)
-    lsps[name_] = spec_
-end
-
--- severity_sort places the most severe diagnostic's virtual text first on each
--- line, so the dominant (red) message reads at the top.
-vim.diagnostic.config({
-    underline = true,     -- squiggly underline under the offending text
-    virtual_text = true,  -- inline message to the right of the line
-    signs = false,        -- no gutter markers in the sign column
-    severity_sort = true, -- most severe diagnostic's text renders first per line
-})
-
--- By default do not use semantic colors
-vim.api.nvim_create_autocmd("LspAttach", {
-    callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if not client then return end
-        vim.debug("highlight(semantics): lsp semantics syntax off")
-        client.server_capabilities.semanticTokensProvider = nil
-    end,
-})
-
--- Completion: enable autotrigger for any client that supports it.
-vim.opt.completeopt = { "noselect", "noinsert", "menu", "menuone" }
-vim.api.nvim_create_autocmd("LspAttach", {
-    callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if client and client:supports_method("textDocument/completion") then
-            vim.lsp.completion.enable(true, client.id, args.buf, { autotrigger = true })
-        end
-    end,
-})
-
--- Hotkeys: setup default hot keys
-vim.api.nvim_create_autocmd("LspAttach", {
-    callback = function(_args)
-        vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "Hover" })
-        vim.keymap.set("n", "<F12>", vim.lsp.buf.definition, { desc = "Goto definition" })
-        vim.keymap.set("n", "<F2>", vim.lsp.buf.rename, { desc = "Rename" })
-        vim.keymap.set("n", "<F8>", function() vim.diagnostic.setqflist({ open = true }) end,
-            { desc = "Populate quickfix with all diagnostics and open" })
-        vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP Code Actions" })
-        vim.keymap.set("n", "<leader>cf", function() vim.lsp.buf.format() end, { desc = "Format code" })
-    end,
-})
 
 -- =============================================================================
 -- (Prolog::VimState) configure vim state persisting folders
