@@ -204,11 +204,27 @@ else
 end
 
 -- =============================================================================
+-- (Project::Lockfile) pin plugin versions per project, not globally
+-- =============================================================================
+-- Every project's .nvim.lua plugins are appended to the same `spec` table, so
+-- without this they'd all lock into this repo's lazy-lock.json: opening an
+-- unrelated project and updating its plugins would dirty this repo's lock
+-- with versions that have nothing to do with it. When a project provides its
+-- own .nvim.lua, keep its plugin pins alongside it instead; otherwise fall
+-- back to this config's own lockfile.
+
+local lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json"
+if nvimlua then
+    lockfile = vim.fn.getcwd() .. "/.nvim-lazy-lock.json"
+end
+
+-- =============================================================================
 -- (Epilog) setup lazy + lsps
 -- =============================================================================
 
 require("lazy").setup({
     spec = spec,
+    lockfile = lockfile,
     checker = { enabled = true },
 })
 
