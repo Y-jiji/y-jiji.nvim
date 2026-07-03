@@ -162,6 +162,14 @@ vim.keymap.set({ "n", "v" }, "<leader>-",
 require("yazi").setup()
 
 -- =============================================================================
+-- (Prolog::Narrow) toggle a centered reading column on wide screens
+-- =============================================================================
+
+vim.keymap.set("n", "<leader>z", function() require("narrow").toggle() end,
+    { desc = "Toggle narrow reading mode" })
+require("narrow").setup()
+
+-- =============================================================================
 -- (Prolog::Syntax) Treesitter for all projects
 -- =============================================================================
 
