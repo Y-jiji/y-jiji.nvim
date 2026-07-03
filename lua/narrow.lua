@@ -1,6 +1,6 @@
 local M = {}
 
-local narrow = { left = nil, right = nil, width = 84 }
+local narrow = { left = nil, right = nil, width = 160 }
 
 local function pad_buf()
   local buf = vim.api.nvim_create_buf(false, true)
