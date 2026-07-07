@@ -43,7 +43,7 @@ plugin {
         require("cmp").setup(opts)
 
         local capabilities = require("cmp_nvim_lsp").default_capabilities()
-        lsp("lua_ls", { cmd = { "lua-language-server" }, capabilities = capabilities })
+        lsp("lua_ls", { cmd = { "lua-language-server" }, filetypes = { "lua" }, capabilities = capabilities })
     end
 }
 

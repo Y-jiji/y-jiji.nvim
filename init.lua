@@ -173,7 +173,6 @@ require("narrow").setup()
 -- (Prolog::Syntax) Treesitter for all projects
 -- =============================================================================
 
-vim.cmd("syntax off")
 vim.cmd("colorscheme brutal")
 
 -- Tree sitter installation
@@ -189,10 +188,10 @@ plugin {
 vim.api.nvim_create_autocmd("FileType", {
     callback = function(args)
         local lang = vim.treesitter.language.get_lang(vim.bo[args.buf].filetype)
-        vim.debug(("highlight(syntax): treesitter syntax on (original: %s)"):format(lang))
+        vim.debug(("highlight(syntax): treesitter syntax on (lang: %s)"):format(lang))
         local status, _ = pcall(vim.treesitter.start, args.buf, lang)
         if not status then
-            vim.print(("No treesitter for %s"):format(lang))
+            vim.debug(("No treesitter for %s"):format(lang))
         end
     end
 })

@@ -44,8 +44,8 @@ hl("DiagnosticInfo", { fg = c.blue })
 hl("DiffAdd", { fg = c.green })
 hl("DiffChange", { fg = c.blue })
 hl("DiffDelete", { fg = c.red })
-hl("MsgArea", { fg = c.red, bg = c.bg })
-hl("NonText", { fg = c.red, bg = c.bg })
+hl("MsgArea", { fg = c.fg })
+hl("NonText", { fg = c.bg })
 
 -- Type
 hl("@type", { fg = c.fg })
