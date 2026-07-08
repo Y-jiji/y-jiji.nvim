@@ -1,0 +1,7 @@
+# Config home used only by yazi.rg(). Prepended to yazi's defaults, so every
+# normal key still works; this only makes <Esc> quit the picker outright
+# instead of merely cancelling the current search/filter.
+[[mgr.prepend_keymap]]
+on  = "<Esc>"
+run = "quit"
+desc = "Quit the ripgrep picker"

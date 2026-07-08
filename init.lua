@@ -140,9 +140,14 @@ vim.g.loaded_netrwPlugin = 1
 -- (Prolog::Yazi) Setup file navigation using yazi
 -- =============================================================================
 
-vim.keymap.set({ "n", "v" }, "<leader>-",
+vim.keymap.set({ "n", "v" }, "<leader>ya",
     function() require("yazi").open() end,
     { desc = "Open yazi in current window" })
+
+vim.keymap.set({ "n" }, "<leader>yr", 
+    function() require("yazi").rg(function(path) if path then vim.cmd("edit " .. vim.fn.fnameescape(path)) end end) end,
+    { desc = "Open yazi for search" })
+
 require("yazi").setup()
 
 -- =============================================================================
@@ -199,7 +204,7 @@ end
 -- =============================================================================
 
 -- "owner/repo" expands over SSH; a URL or local path is used verbatim.
-local function src_of(p)
+local function gitof(p)
     local s = p.dir or p.src or p[1]
     if s and not (s:match("://") or s:match("^git@") or s:match("^/")) then
         s = "git@github.com:" .. s
@@ -212,13 +217,13 @@ local order, seen = {}, {}
 local function collect(p)
     if type(p) == "string" then p = { p } end
     for _, d in ipairs(p.dependencies or {}) do collect(d) end
-    local s = src_of(p)
+    local s = gitof(p)
     if not seen[s] then seen[s] = true; order[#order + 1] = p end
 end
 for _, p in ipairs(spec) do collect(p) end
 
 vim.pack.add(vim.tbl_map(function(p)
-    return { src = src_of(p), version = p.commit or p.tag or p.branch or p.version }
+    return { src = gitof(p), version = p.commit or p.tag or p.branch or p.version }
 end, order))
 for _, p in ipairs(order) do if p.config then p.config() end end
 
