@@ -2,6 +2,28 @@ local M = {}
 
 local config_home = vim.fn.stdpath("config") .. "/lua"
 
+-- A buffer's own name isn't always the real file under the cursor -- e.g.
+-- mdforest's synthetic transcluded view. Such modules register a resolver
+-- here; open() consults them before the buffer name so it still lands in the
+-- real file's parent folder. Reverse dependency on purpose: yazi never learns
+-- who registers, so it carries no knowledge of any particular plugin.
+M.source_resolvers = {}
+
+function M.register_source_resolver(fn)
+  table.insert(M.source_resolvers, fn)
+end
+
+-- First registered resolver that yields a readable file for `buf`, else nil.
+local function resolved_source(buf)
+  for _, fn in ipairs(M.source_resolvers) do
+    local ok, path = pcall(fn, buf)
+    if ok and path and path ~= "" and vim.fn.filereadable(path) == 1 then
+      return path
+    end
+  end
+  return nil
+end
+
 -- yazi emits `search~?://<domain>:<uri>:<urn>//<absolute path>` from
 -- `search --via=rg` hits via --chooser-file. The two numeric fields are
 -- yazi's internal Loc offsets (uri/urn path-component boundaries), NOT
@@ -47,7 +69,7 @@ end
 function M.open()
   local prev_buf = vim.api.nvim_get_current_buf()
   local dir
-  local bufname = vim.api.nvim_buf_get_name(prev_buf)
+  local bufname = resolved_source(prev_buf) or vim.api.nvim_buf_get_name(prev_buf)
   if bufname ~= "" and vim.fn.filereadable(bufname) == 1 then
     dir = vim.fn.fnamemodify(bufname, ":p:h")
   else
