@@ -1,8 +1,8 @@
 -- =============================================================================
 -- Neovim Setup Overview
--- (Prolog)  bootstrap lazy.nvim, define list of plugins and list of lsps, setup default hooks
+-- (Prolog)  define list of plugins and list of lsps, setup default hooks
 -- (Project) run .nvim.lua as a function; append to plugin list and lsp list, configure options, setup project hooks
--- (Epilog)  run lazy.setup, configure lsps
+-- (Epilog)  install plugins via vim.pack, run their config hooks, configure lsps
 -- =============================================================================
 
 DEBUG = false
@@ -12,24 +12,8 @@ function vim.debug(msg)
 end
 
 -- =============================================================================
--- (Prolog::Plugin)  bootstrap lazy.nvim, define list of plugins
+-- (Prolog::Plugin)  define list of plugins
 -- =============================================================================
-
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-    local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-    local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
-    if vim.v.shell_error ~= 0 then
-        vim.api.nvim_echo({
-            { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-            { out,                            "WarningMsg" },
-            { "\nPress any key to exit..." },
-        }, true, {})
-        vim.fn.getchar()
-        os.exit(1)
-    end
-end
-vim.opt.rtp:prepend(lazypath)
 
 -- variable for collecting plugin
 local spec = {}
@@ -211,26 +195,32 @@ else
 end
 
 -- =============================================================================
--- (Epilog) setup lazy + lsps
+-- (Epilog) install plugins via vim.pack + configure lsps
 -- =============================================================================
 
--- Every project's .nvim.lua plugins are appended to the same `spec` table, so
--- without a per-project lockfile they'd all lock into this repo's
--- lazy-lock.json: opening an unrelated project and updating its plugins
--- would dirty this repo's lock with versions that have nothing to do with
--- it. When a project provides its own .nvim.lua, keep its plugin pins
--- alongside it instead; otherwise fall back to this config's own lockfile.
-local lockfile = vim.fn.stdpath("config") .. "/lazy-lock.json"
-if nvimlua then
-    lockfile = vim.fn.getcwd() .. "/.nvim-lazy-lock.json"
+-- "owner/repo" expands over SSH; a URL or local path is used verbatim.
+local function src_of(p)
+    local s = p.dir or p.src or p[1]
+    if s and not (s:match("://") or s:match("^git@") or s:match("^/")) then
+        s = "git@github.com:" .. s
+    end
+    return s
 end
 
-require("lazy").setup({
-    spec = spec,
-    lockfile = lockfile,
-    git = { url_format = "git@github.com:%s" },
-    checker = { enabled = true },
-})
+-- Collect specs, dependencies first, de-duplicated by source.
+local order, seen = {}, {}
+local function collect(p)
+    if type(p) == "string" then p = { p } end
+    for _, d in ipairs(p.dependencies or {}) do collect(d) end
+    local s = src_of(p)
+    if not seen[s] then seen[s] = true; order[#order + 1] = p end
+end
+for _, p in ipairs(spec) do collect(p) end
+
+vim.pack.add(vim.tbl_map(function(p)
+    return { src = src_of(p), version = p.commit or p.tag or p.branch or p.version }
+end, order))
+for _, p in ipairs(order) do if p.config then p.config() end end
 
 for name, spec in pairs(lsps) do
     vim.lsp.config(name, spec)
