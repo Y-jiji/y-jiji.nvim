@@ -32,13 +32,13 @@ local function parse_chosen(s)
   return s:match("^search~?://[^:]+:%d+:%d+/(/.+)$") or s
 end
 
-local function _launch(dir, prev_buf)
+local function _launch(path, prev_buf)
   local tmp = vim.fn.tempname()
   vim.cmd("enew")
   vim.bo.buftype = "nofile"
   vim.bo.bufhidden = "wipe"
   vim.bo.swapfile = false
-  vim.fn.termopen({ "yazi", "--chooser-file", tmp, dir }, {
+  vim.fn.termopen({ "yazi", "--chooser-file", tmp, path }, {
     env = { YAZI_CONFIG_HOME = config_home },
     on_exit = function()
       vim.schedule(function()
@@ -68,14 +68,17 @@ end
 
 function M.open()
   local prev_buf = vim.api.nvim_get_current_buf()
-  local dir
+  -- Hand yazi the file itself, not its folder: yazi opens the parent
+  -- directory with that file hovered. Fall back to cwd when there's no file
+  -- (an unnamed or synthetic buffer with no resolver match).
+  local target
   local bufname = resolved_source(prev_buf) or vim.api.nvim_buf_get_name(prev_buf)
   if bufname ~= "" and vim.fn.filereadable(bufname) == 1 then
-    dir = vim.fn.fnamemodify(bufname, ":p:h")
+    target = vim.fn.fnamemodify(bufname, ":p")
   else
-    dir = vim.fn.getcwd()
+    target = vim.fn.getcwd()
   end
-  _launch(dir, prev_buf)
+  _launch(target, prev_buf)
 end
 
 function M.open_in(dir)
