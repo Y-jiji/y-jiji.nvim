@@ -52,6 +52,7 @@ hl("NonText", { fg = c.bg })
 -- Type
 hl("@type", { fg = c.fg })
 hl("@type.builtin.rust", { fg = c.fg })
+hl("@type.builtin.python", { fg = c.fg })
 
 hl("@lsp.type.type", { fg = c.fg })
 hl("@lsp.type.class", { fg = c.fg })
