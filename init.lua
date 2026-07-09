@@ -162,6 +162,7 @@ require("narrow").setup()
 -- (Prolog::Syntax) Treesitter for all projects
 -- =============================================================================
 
+vim.opt.guicursor = "n-v-c:block-Cursor/lCursor,i-ci:ver25-Cursor,r-cr:hor20-Cursor"
 vim.cmd("colorscheme brutal")
 
 -- Tree sitter installation
