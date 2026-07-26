@@ -46,8 +46,10 @@ hl("DiagnosticInfo", { fg = c.blue })
 hl("DiffAdd", { fg = c.green })
 hl("DiffChange", { fg = c.blue })
 hl("DiffDelete", { fg = c.red })
-hl("MsgArea", { fg = c.fg })
-hl("NonText", { fg = c.bg })
+hl("MsgArea", { fg = dark and "NONE" or c.fg })
+hl("NonText", { fg = dark and "NONE" or c.bg })
+
+vim.opt.fillchars:append({ eob = " " })
 
 -- Type
 hl("@type", { fg = c.fg })
