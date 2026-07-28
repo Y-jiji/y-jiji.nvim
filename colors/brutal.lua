@@ -55,6 +55,7 @@ vim.opt.fillchars:append({ eob = " " })
 hl("@type", { fg = c.fg })
 hl("@type.builtin.rust", { fg = c.fg })
 hl("@type.builtin.python", { fg = c.fg })
+hl("@type.builtin.cpp", { fg = c.fg })
 
 hl("@lsp.type.type", { fg = c.fg })
 hl("@lsp.type.class", { fg = c.fg })
