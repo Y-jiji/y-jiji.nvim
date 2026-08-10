@@ -170,7 +170,16 @@ plugin {
     "romus204/tree-sitter-manager.nvim",
     dependencies = {}, -- tree-sitter CLI must be installed system-wide
     config = function()
-        require("tree-sitter-manager").setup()
+        require("tree-sitter-manager").setup({
+            languages = {
+                cuda = {
+                    install_info = {
+                        url = "https://github.com/Y-jiji/tree-sitter-cuda",
+                        revision = "64f84c00a604a50faa98b8487e311a65d3891b92",
+                    },
+                },
+            },
+        })
     end,
 }
 
