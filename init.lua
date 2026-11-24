@@ -159,6 +159,21 @@ vim.keymap.set("n", "<leader>z", function() require("narrow").toggle() end,
 require("narrow").setup()
 
 -- =============================================================================
+-- (Prolog::Markdown) follow [text](#anchor) links with <C-]>; <C-o> jumps back
+-- =============================================================================
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "markdown",
+    callback = function(args)
+        vim.keymap.set("n", "<C-]>", function()
+            if not require("mdlink").follow() then -- not on a link: normal tag jump
+                vim.api.nvim_feedkeys(vim.keycode("<C-]>"), "n", false)
+            end
+        end, { buffer = args.buf, desc = "Follow markdown link" })
+    end,
+})
+
+-- =============================================================================
 -- (Prolog::Syntax) Treesitter for all projects
 -- =============================================================================
 
@@ -194,6 +209,14 @@ vim.api.nvim_create_autocmd("FileType", {
         end
     end
 })
+
+-- =============================================================================
+-- (Prolog::Git) add diff view to every workspace
+-- =============================================================================
+
+plugin {
+    "barrettruth/diffs.nvim"
+}
 
 -- =============================================================================
 -- (Project) load per-project .nvim.lua; run it as function
