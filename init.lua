@@ -222,6 +222,10 @@ plugin {
     "Y-jiji/astdiff.nvim",
     config = function()
         local astdiff = require("astdiff")
+        vim.api.nvim_create_user_command("AstdiffFile", function(args)
+            local old = table.concat(vim.fn.readfile(vim.fn.expand(args.args)), "\n")
+            astdiff.show(0, old)
+        end, { nargs = 1, complete = "file", desc = "astdiff: current buffer vs {old file}" })
         vim.api.nvim_create_user_command("AstdiffHead", function()
             local file = vim.fn.expand("%:p")
             local res = vim.system({ "git", "show", "HEAD:./" .. vim.fn.fnamemodify(file, ":t") },
