@@ -218,6 +218,26 @@ plugin {
     "barrettruth/diffs.nvim"
 }
 
+plugin {
+    "Y-jiji/astdiff.nvim",
+    config = function()
+        local astdiff = require("astdiff")
+        vim.api.nvim_create_user_command("AstdiffHead", function()
+            local file = vim.fn.expand("%:p")
+            local res = vim.system({ "git", "show", "HEAD:./" .. vim.fn.fnamemodify(file, ":t") },
+                { cwd = vim.fn.fnamemodify(file, ":h"), text = true }):wait()
+            if res.code ~= 0 then
+                vim.notify(res.stderr, vim.log.levels.ERROR)
+                return
+            end
+            astdiff.show(0, res.stdout)
+        end, { desc = "astdiff: current buffer vs git HEAD" })
+        vim.api.nvim_create_user_command("AstdiffClear", function() astdiff.clear(0) end,
+            { desc = "astdiff: remove marks" })
+        vim.keymap.set("n", "<leader>ad", "<Cmd>AstdiffHead<CR>", { desc = "astdiff: buffer vs git HEAD" })
+    end,
+}
+
 -- =============================================================================
 -- (Project) load per-project .nvim.lua; run it as function
 -- =============================================================================
