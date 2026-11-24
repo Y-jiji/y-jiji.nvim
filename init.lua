@@ -222,11 +222,11 @@ plugin {
     "Y-jiji/astdiff.nvim",
     config = function()
         local astdiff = require("astdiff")
-        vim.api.nvim_create_user_command("AstdiffFile", function(args)
+        vim.api.nvim_create_user_command("AstDiffFile", function(args)
             local old = table.concat(vim.fn.readfile(vim.fn.expand(args.args)), "\n")
             astdiff.show(0, old)
         end, { nargs = 1, complete = "file", desc = "astdiff: current buffer vs {old file}" })
-        vim.api.nvim_create_user_command("AstdiffHead", function()
+        vim.api.nvim_create_user_command("AstDiffHead", function()
             local file = vim.fn.expand("%:p")
             local res = vim.system({ "git", "show", "HEAD:./" .. vim.fn.fnamemodify(file, ":t") },
                 { cwd = vim.fn.fnamemodify(file, ":h"), text = true }):wait()
@@ -236,9 +236,20 @@ plugin {
             end
             astdiff.show(0, res.stdout)
         end, { desc = "astdiff: current buffer vs git HEAD" })
-        vim.api.nvim_create_user_command("AstdiffClear", function() astdiff.clear(0) end,
+        vim.api.nvim_create_user_command("AstDiffRev", function(args)
+            local rev = args.args ~= "" and args.args or "HEAD"
+            local file = vim.fn.expand("%:p")
+            local res = vim.system({ "git", "show", rev .. ":./" .. vim.fn.fnamemodify(file, ":t") },
+                { cwd = vim.fn.fnamemodify(file, ":h"), text = true }):wait()
+            if res.code ~= 0 then
+                vim.notify(res.stderr, vim.log.levels.ERROR)
+                return
+            end
+            astdiff.show(0, res.stdout)
+        end, { nargs = "?", desc = "astdiff: current buffer vs {rev} (default HEAD)" })
+        vim.api.nvim_create_user_command("AstDiffClear", function() astdiff.clear(0) end,
             { desc = "astdiff: remove marks" })
-        vim.keymap.set("n", "<leader>ad", "<Cmd>AstdiffHead<CR>", { desc = "astdiff: buffer vs git HEAD" })
+        vim.keymap.set("n", "<leader>ad", "<Cmd>AstDiffHead<CR>", { desc = "astdiff: buffer vs git HEAD" })
     end,
 }
 
